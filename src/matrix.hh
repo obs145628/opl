@@ -1,5 +1,6 @@
 
 
+
 /** @file Matrix class definition
  */
 
@@ -417,6 +418,66 @@ namespace opl
 
 			return v;
 		}
+
+		void
+		row_swap(size_type r1, size_type r2)
+	   	{
+			assert (r1 < rows_);
+			assert (r2 < rows_);
+			std::swap_ranges (begin_row (r1), end_row (r1), begin_row (r2));
+		}
+
+		void
+		col_swap(size_type c1, size_type c2)
+	   	{
+			assert (c1 < cols_);
+			assert (c2 < cols_);
+			std::swap_ranges (begin_col (c1), end_col (c1), begin_col (c2));
+		}
+
+		Matrix
+		sub_matrix(size_type i, size_type j) const
+	   	{
+			assert (i < rows_);
+			assert (j < cols_);
+			assert (rows_ && cols_);
+			Matrix m (rows_ - 1, cols_ - 1);
+			size_type m_i = 0;
+			size_type m_j = 0;
+			for (size_type m_i = 0, this_i = 0; this_i < rows_; ++this_i)
+			{
+				if (this_i == i)
+					continue;
+				for (size_type m_j = 0, this_j = 0; this_j < cols_; ++this_j)
+				{
+					if (this_j == j)
+						continue;
+					m.at (m_i, m_j) = at (this_i, this_j);
+					++m_j;
+				}
+				++m_i;
+			}
+			return m;
+		}
+
+		Matrix
+		region_matrix (size_type i0, size_type j0,
+					   size_type n, size_type p) const
+	   	{
+			assert (i0 < rows_);
+			assert (j0 < cols_);
+			assert (i0 + n <= rows_);
+			assert (j0 + p <= cols_);
+
+			Matrix m (n, p);
+			for (size_type i = 0; i < n; ++i)
+				for (size_type j = 0; j < p; ++j)
+					m.at (i, j) = at (i0 + i, j0 + j);
+			return m;
+   		}
+
+
+		//Algos
 
 		void
 		increment()
@@ -882,6 +943,563 @@ namespace opl
 		average () const
 		{
 			return algo::average (data_, data_ + size_);
+		}
+
+
+
+		//Row_Algos
+
+		void
+		row_increment(size_type r)
+		{
+			assert (r < rows_);
+			algo::increment (begin_row (r), end_row (r));
+		}
+
+		void
+		row_decrement(size_type r)
+		{
+			assert (r < rows_);
+			algo::decrement (begin_row (r), end_row (r));
+		}
+
+		void
+		row_plus_x (size_type r, const T& x)
+		{
+			assert (r < rows_);
+			algo::plus_x (begin_row (r), end_row (r), x);
+	   	}
+
+		void
+		row_minus_x (size_type r, const T& x)
+		{
+			assert (r < rows_);
+			algo::minus_x (begin_row (r), end_row (r), x);
+	   	}
+
+		void
+		row_multiplies_x (size_type r, const T& x)
+		{
+			assert (r < rows_);
+			algo::multiplies_x (begin_row (r), end_row (r), x);
+	   	}
+
+		void
+		row_divides_x (size_type r, const T& x)
+		{
+			assert (r < rows_);
+			algo::divides_x (begin_row (r), end_row (r), x);
+	   	}
+
+		void
+		row_modulus_x (size_type r, const T& x)
+		{
+			assert (r < rows_);
+			algo::modulus_x (begin_row (r), end_row (r), x);
+	   	}
+
+		void
+		row_x_plus (size_type r, const T& x)
+		{
+			assert (r < rows_);
+			algo::x_plus (x, begin_row (r), end_row (r));
+	   	}
+
+		void
+		row_x_minus (size_type r, const T& x)
+		{
+			assert (r < rows_);
+			algo::x_minus (x, begin_row (r), end_row (r));
+	   	}
+
+		void
+		row_x_multiplies (size_type r, const T& x)
+		{
+			assert (r < rows_);
+			algo::x_multiplies (x, begin_row (r), end_row (r));
+	   	}
+
+		void
+		row_x_divides (size_type r, const T& x)
+		{
+			assert (r < rows_);
+			algo::x_divides (x, begin_row (r), end_row (r));
+	   	}
+
+		void
+		row_x_modulus (size_type r, const T& x)
+		{
+			assert (r < rows_);
+			algo::x_modulus (x, begin_row (r), end_row (r));
+	   	}
+
+		void
+		row_negate (size_type r)
+		{
+			assert (r < rows_);
+			algo::negate (begin_row (r), end_row (r));
+	   	}
+
+		void
+		row_abs (size_type r)
+		{
+			assert (r < rows_);
+			algo::abs (begin_row (r), end_row (r));
+	   	}
+
+		T
+		row_min (size_type r) const
+		{
+			assert (r < rows_);
+		    return algo::min (begin_row (r), end_row (r));
+	   	}
+
+		T
+		row_max (size_type r) const
+		{
+			assert (r < rows_);
+		    return algo::max (begin_row (r), end_row (r));
+	   	}
+
+		T
+		row_min_abs (size_type r) const
+		{
+			assert (r < rows_);
+		    return algo::min_abs (begin_row (r), end_row (r));
+	   	}
+
+		T
+		row_max_abs (size_type r) const
+		{
+			assert (r < rows_);
+		    return algo::max_abs (begin_row (r), end_row (r));
+	   	}
+
+		T
+		row_norm_square (size_type r) const
+		{
+			assert (r < rows_);
+		    return algo::norm_square (begin_row (r), end_row (r));
+	   	}
+
+		T
+		row_norm (size_type r) const
+		{
+		    assert (r < rows_);
+		    return algo::norm (begin_row (r), end_row (r));
+	   	}
+
+		T
+		row_p_norm (size_type r, size_t p) const
+		{
+			assert (r < rows_);
+		    return algo::p_norm (begin_row (r), end_row (r), p);
+	   	}
+
+		T
+		row_sum (size_type r) const
+		{
+			assert (r < rows_);
+		    return algo::sum (begin_row (r), end_row (r));
+	   	}
+
+		T
+		row_sum_abs (size_type r) const
+		{
+			assert (r < rows_);
+		    return algo::sum_abs (begin_row (r), end_row(r));
+	   	}
+
+		T
+		row_product (size_type r) const
+		{
+			assert (r < rows_);
+		    return algo::product (begin_row (r), end_row (r));
+	   	}
+
+		T
+		row_product_abs (size_type r) const
+		{
+			assert (r < rows_);
+		    return algo::product_abs (begin_row (r), end_row (r));
+	   	}
+
+		void
+		row_normalize (size_type r)
+		{
+			assert (r < rows_);
+			algo::normalize (begin_row (r), end_row (r));
+	   	}
+
+		bool
+		row_is_unit (size_type r) const
+		{
+			assert (r < rows_);
+		    return algo::is_unit (begin_row (r), end_row (r));
+	   	}
+
+		T
+		row_dot_product (size_type r1, size_type r2) const
+		{
+			assert (r1 < rows_);
+			assert (r2 < rows_);
+			return algo::dot_product (begin_row (r1), end_row (r1),
+									  begin_row (r2));
+	   	}
+
+		T
+		row_distance_square (size_type r1, size_type r2) const
+		{
+		    assert (r1 < rows_);
+			assert (r2 < rows_);
+			return algo::distance_square (begin_row (r1), end_row (r1),
+										  begin_row (r2));
+	   	}
+
+		T
+		row_distance (size_type r1, size_type r2) const
+		{
+		    assert (r1 < rows_);
+			assert (r2 < rows_);
+			return algo::distance (begin_row (r1), end_row (r1),
+								   begin_row (r2));
+	   	}
+
+		bool
+		row_is_orthogonal (size_type r1, size_type r2) const
+		{
+		    assert (r1 < rows_);
+			assert (r2 < rows_);
+			return algo::is_orthogonal (begin_row (r1), end_row (r1),
+										begin_row (r2));
+	   	}
+
+		bool
+		row_is_orthonormal (size_type r1, size_type r2) const
+		{
+		    assert (r1 < rows_);
+			assert (r2 < rows_);
+			return algo::is_orthonormal (begin_row (r1), end_row (r1),
+										 begin_row (r2));
+	   	}
+
+		bool
+		row_is_null (size_type r) const
+		{
+			assert (r < rows_);
+			return algo::is_null (begin_row (r), end_row (r));
+	   	}
+
+		bool
+		row_equals (size_type r1, size_type r2) const
+		{
+		    assert (r1 < rows_);
+			assert (r2 < rows_);
+			return algo::equals (begin_row (r1), end_row (r1),
+								 begin_row (r2));
+	   	}
+
+		void
+		row_project_along (size_type r1, size_type r2)
+		{
+		    assert (r1 < rows_);
+			assert (r2 < rows_);
+			algo::project_along (begin_row (r1), end_row (r1),
+								 begin_row (r2));
+	   	}
+
+		void
+		row_project_orthogonal (size_type r1, size_type r2)
+		{
+		    assert (r1 < rows_);
+			assert (r2 < rows_);
+			algo::project_orthogonal (begin_row (r1), end_row (r1),
+									  begin_row (r2));
+	   	}
+
+		T
+		row_average (size_type r) const
+		{
+			assert (r < rows_);
+			return algo::average (begin_row (r), end_row (r));
+		}
+
+
+		//Col_Algos
+
+		void
+		col_increment(size_type c)
+		{
+			assert (c < cols_);
+			algo::increment (begin_col (c), end_col (c));
+		}
+
+		void
+		col_decrement(size_type c)
+		{
+		    assert (c < cols_);
+			algo::decrement (begin_col (c), end_col (c));
+		}
+
+		void
+		col_plus_x (size_type c, const T& x)
+		{
+		    assert (c < cols_);
+			algo::plus_x (begin_col (c), end_col (c), x);
+	   	}
+
+		void
+		col_minus_x (size_type c, const T& x)
+		{
+		    assert (c < cols_);
+			algo::minus_x (begin_col (c), end_col (c), x);
+	   	}
+
+		void
+		col_multiplies_x (size_type c, const T& x)
+		{
+		    assert (c < cols_);
+			algo::multiplies_x (begin_col (c), end_col (c), x);
+	   	}
+
+		void
+		col_divides_x (size_type c, const T& x)
+		{
+		    assert (c < cols_);
+			algo::divides_x (begin_col (c), end_col (c), x);
+	   	}
+
+		void
+		col_modulus_x (size_type c, const T& x)
+		{
+		    assert (c < cols_);
+			algo::modulus_x (begin_col (c), end_col (c), x);
+	   	}
+
+		void
+		col_x_plus (size_type c, const T& x)
+		{
+		    assert (c < cols_);
+			algo::x_plus (x, begin_col (c), end_col (c));
+	   	}
+
+		void
+		col_x_minus (size_type c, const T& x)
+		{
+		    assert (c < cols_);
+			algo::x_minus (x, begin_col (c), end_col (c));
+	   	}
+
+		void
+		col_x_multiplies (size_type c, const T& x)
+		{
+		    assert (c < cols_);
+			algo::x_multiplies (x, begin_col (c), end_col (c));
+	   	}
+
+		void
+		col_x_divides (size_type c, const T& x)
+		{
+		    assert (c < cols_);
+			algo::x_divides (x, begin_col (c), end_col (c));
+	   	}
+
+		void
+		col_x_modulus (size_type c, const T& x)
+		{
+		    assert (c < cols_);
+			algo::x_modulus (x, begin_col (c), end_col (c));
+	   	}
+
+		void
+		col_negate (size_type c)
+		{
+		    assert (c < cols_);
+			algo::negate (begin_col (c), end_col (c));
+	   	}
+
+		void
+		col_abs (size_type c)
+		{
+		    assert (c < cols_);
+			algo::abs (begin_col (c), end_col (c));
+	   	}
+
+		T
+		col_min (size_type c) const
+		{
+		    assert (c < cols_);
+		    return algo::min (begin_col (c), end_col (c));
+	   	}
+
+		T
+		col_max (size_type c) const
+		{
+		    assert (c < cols_);
+		    return algo::max (begin_col (c), end_col (c));
+	   	}
+
+		T
+		col_min_abs (size_type c) const
+		{
+		    assert (c < cols_);
+		    return algo::min_abs (begin_col (c), end_col (c));
+	   	}
+
+		T
+		col_max_abs (size_type c) const
+		{
+		    assert (c < cols_);
+		    return algo::max_abs (begin_col (c), end_col (c));
+	   	}
+
+		T
+		col_norm_square (size_type c) const
+		{
+		    assert (c < cols_);
+		    return algo::norm_square (begin_col (c), end_col (c));
+	   	}
+
+		T
+		col_norm (size_type c) const
+		{
+		    assert (c < cols_);
+		    return algo::norm (begin_col (c), end_col (c));
+	   	}
+
+		T
+		col_p_norm (size_type c, size_t p) const
+		{
+		    assert (c < cols_);
+		    return algo::p_norm (begin_col (c), end_col (c), p);
+	   	}
+
+		T
+		col_sum (size_type c) const
+		{
+		    assert (c < cols_);
+		    return algo::sum (begin_col (c), end_col (c));
+	   	}
+
+		T
+		col_sum_abs (size_type c) const
+		{
+		    assert (c < cols_);
+		    return algo::sum_abs (begin_col (c), end_col (c));
+	   	}
+
+		T
+		col_product (size_type c) const
+		{
+		    assert (c < cols_);
+		    return algo::product (begin_col (c), end_col (c));
+	   	}
+
+		T
+		col_product_abs (size_type c) const
+		{
+		    assert (c < cols_);
+		    return algo::product_abs (begin_col (c), end_col (c));
+	   	}
+
+		void
+		col_normalize (size_type c)
+		{
+		    assert (c < cols_);
+			algo::normalize (begin_col (c), end_col (c));
+	   	}
+
+		bool
+		col_is_unit (size_type c) const
+		{
+		    assert (c < cols_);
+		    return algo::is_unit (begin_col (c), end_col (c));
+	   	}
+
+		T
+		col_dot_product (size_type c1, size_type c2) const
+		{
+		    assert (c1< cols_);
+			assert (c2< cols_);
+			return algo::dot_product (begin_col (c1), end_col (c1),
+									  begin_col (c2));
+	   	}
+
+		T
+		col_distance_square (size_type c1, size_type c2) const
+		{
+		    assert (c1< cols_);
+			assert (c2< cols_);
+			return algo::distance_square (begin_col (c1), end_col (c1),
+										  begin_col (c2));
+	   	}
+
+		T
+		col_distance (size_type c1, size_type c2) const
+		{
+		    assert (c1< cols_);
+			assert (c2< cols_);
+			return algo::distance (begin_col (c1), end_col (c1),
+								   begin_col (c2));
+	   	}
+
+		bool
+		col_is_orthogonal (size_type c1, size_type c2) const
+		{
+		    assert (c1< cols_);
+			assert (c2< cols_);
+			return algo::is_orthogonal (begin_col (c1), end_col (c1),
+										begin_col (c2));
+	   	}
+
+		bool
+		col_is_orthonormal (size_type c1, size_type c2) const
+		{
+		    assert (c1< cols_);
+			assert (c2< cols_);
+			return algo::is_orthonormal (begin_col (c1), end_col (c1),
+										 begin_col (c2));
+	   	}
+
+		bool
+		col_is_null (size_type c) const
+		{
+		    assert (c < cols_);
+			return algo::is_null (begin_col (c), end_col (c));
+	   	}
+
+		bool
+		col_equals (size_type c1, size_type c2) const
+		{
+		    assert (c1< cols_);
+			assert (c2< cols_);
+			return algo::equals (begin_col (c1), end_col (c1),
+								 begin_col (c2));
+	   	}
+
+		void
+		col_project_along (size_type c1, size_type c2)
+		{
+		    assert (c1< cols_);
+			assert (c2< cols_);
+			algo::project_along (begin_col (c1), end_col (c1),
+								 begin_row (c2));
+	   	}
+
+		void
+		col_project_orthogonal (size_type c1, size_type c2)
+		{
+		    assert (c1< cols_);
+			assert (c2< cols_);
+			algo::project_orthogonal (begin_col (c1), end_col (c1),
+									  begin_col (c2));
+	   	}
+
+		T
+		col_average (size_type c) const
+		{
+		    assert (c < cols_);
+			return algo::average (begin_col (c), end_col (c));
 		}
 
 
