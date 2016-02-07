@@ -5,6 +5,7 @@
 # define ALGO_HH_
 
 # include <cmath>
+# include <cstddef>
 # include <algorithm>
 # include <iostream>
 
@@ -799,7 +800,7 @@ namespace opl
 
 		template <class It>
 		typename std::iterator_traits<It>::value_type
-		average (It begin, It end)
+		mean (It begin, It end)
 		{
 			using value_type = typename std::iterator_traits<It>::value_type;
 			value_type sum = 0;
@@ -811,6 +812,142 @@ namespace opl
 			}
 
 			return sum / size;
+		}
+
+	    template <class It>
+		typename std::iterator_traits<It>::value_type
+		median (It begin, It end)
+		{
+			using value_type = typename std::iterator_traits<It>::value_type;
+			std::vector<value_type> v (begin, end);
+			std::sort (v.begin (), v.end ());
+		    return v[v.size () / 2];
+		}
+
+		template <class It>
+		typename std::iterator_traits<It>::value_type
+		quartile1 (It begin, It end)
+		{
+			using value_type = typename std::iterator_traits<It>::value_type;
+			std::vector<value_type> v (begin, end);
+			std::sort (v.begin (), v.end ());
+		    return v[v.size () / 4];
+		}
+
+		template <class It>
+		typename std::iterator_traits<It>::value_type
+		quartile3 (It begin, It end)
+		{
+			using value_type = typename std::iterator_traits<It>::value_type;
+			std::vector<value_type> v (begin, end);
+			std::sort (v.begin (), v.end ());
+		    return v[v.size () * 3 / 4];
+		}
+
+		template <class It1, class It2>
+		void
+		interquartile (It1 begin1, It1 end1, It2 begin2)
+		{
+			using value_type = typename std::iterator_traits<It1>::value_type;
+			std::vector<value_type> v (begin1, end1);
+			std::sort (v.begin (), v.end ());
+			std::copy (v.begin () + v.size () / 4,
+					   v.begin () + v.size () * 3 / 4 + 1,
+					   begin2);
+		}
+
+	    template <class It>
+		typename std::iterator_traits<It>::value_type
+		interquartile_range (It begin, It end)
+		{
+			using value_type = typename std::iterator_traits<It>::value_type;
+			std::vector<value_type> v (begin, end);
+			std::sort (v.begin (), v.end ());
+		    return v[v.size () * 3 / 4] - v[v.size () / 4];
+		}
+
+
+		template <class It>
+		typename std::iterator_traits<It>::value_type
+		mode (It begin, It end)
+		{
+			using value_type = typename std::iterator_traits<It>::value_type;
+			std::vector<value_type> v (begin, end);
+			std::sort (v.begin (), v.end ());
+
+			value_type mode = v[0];
+			value_type current = mode;
+			size_t mode_n = 1;
+			size_t current_n = 1;
+
+			for (size_t i = 1; i < v.size (); ++i)
+			{
+				if (current == v[i])
+				{
+					++current_n;
+					if (current_n > mode_n)
+					{
+						mode_n = current_n;
+						mode = current;
+					}
+				}
+				else
+				{
+					current_n = 1;
+					current = v[i];
+				}
+			}
+
+		    return mode;
+		}
+
+		template <class It>
+		typename std::iterator_traits<It>::value_type
+		variance (It begin, It end)
+		{
+			using value_type = typename std::iterator_traits<It>::value_type;
+			value_type n = static_cast<value_type> (0);
+			value_type sum = static_cast<value_type> (0);
+			value_type square = static_cast<value_type> (0);
+
+			for (It i = begin; i != end; ++i)
+			{
+				sum += *i;
+				square += *i * *i;
+				n += static_cast<value_type> (1);
+			}
+
+			return square / n - (sum * sum) / (n * n);
+		}
+
+		template <class It>
+		typename std::iterator_traits<It>::value_type
+		standard_deviation (It begin, It end)
+		{
+		    return std::sqrt (variance (begin, end));
+		}
+
+		///a <- a + xb
+		template <class It1, class It2, class T>
+		void
+		saxpy (It1 begin1, It1 end1, const T& x, It2 begin2)
+		{
+			It1 i1 = begin1;
+			It2 i2 = begin2;
+			for (; i1 != end1; ++i1, ++i2)
+				*i1 += x * *i2;
+		}
+
+		///c <- a + xb
+		template <class It1, class It2, class It3, class T>
+		void
+		saxpy (It1 begin1, It1 end1, const T& x, It2 begin2, It3 begin3)
+		{
+			It1 i1 = begin1;
+			It2 i2 = begin2;
+			It3 i3 = begin3;
+			for (; i1 != end1; ++i1, ++i2, ++i3)
+				*i3 = *i1 + x * *i2;
 		}
 
 	}

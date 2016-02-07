@@ -13,6 +13,8 @@
 # include <vector>
 # include "algo.hh"
 # include "serialization.hh"
+# include "math.hh"
+# include "types.hh"
 
 namespace opl
 {
@@ -757,9 +759,66 @@ namespace opl
 	   	}
 
 		T
-		average () const
+		mean () const
 		{
-			return algo::average (data_, data_ + size_);
+			return algo::mean (data_, data_ + size_);
+		}
+
+		T
+		median () const
+		{
+			return algo::median (data_, data_ + size_);
+		}
+
+		T
+		quartile1 () const
+		{
+			return algo::quartile1 (data_, data_ + size_);
+		}
+
+		T
+		quartile3 () const
+		{
+			return algo::quartile3 (data_, data_ + size_);
+		}
+
+		T
+		interquartile_range () const
+		{
+			return algo::interquartile_range (data_, data_ + size_);
+		}
+
+
+		T
+		mode () const
+		{
+			return algo::mode (data_, data_ + size_);
+		}
+
+		T
+		variance () const
+		{
+			return algo::variance (data_, data_ + size_);
+		}
+
+		T
+		standard_deviation () const
+		{
+			return algo::standard_deviation (data_, data_ + size_);
+		}
+
+		void
+		saxpy (const T& x, const Vector& v)
+		{
+			algo::saxpy (data_, data_ + size_, x, v.data_);
+		}
+
+		Vector
+		saxpy_get (const T& x, const Vector& v) const
+		{
+			Vector res (size_);
+			algo::saxpy (data_, data_ + size_, x, v.data_, res.data_);
+			return res;
 		}
 
 		std::vector<Vector>
@@ -794,6 +853,12 @@ namespace opl
 		static std::vector<Vector>
 		orthogonal_complement_get (const std::vector<Vector>& u_basis,
 								   const std::vector<Vector>& v_basis);
+
+		static Vector
+		d2_lregression (const std::vector<Vector>& data);
+
+		static T
+		d2_correlation_coeff (const std::vector<Vector>& data);
 
 
 
@@ -1232,7 +1297,9 @@ namespace opl
 
 	};
 
-	using vect_type = Vector<double>;
+	using rvec_type = Vector<r_type>;
+    using zvec_type = Vector<z_type>;
+	using nvec_type = Vector<n_type>;
 
 	template <class T>
 	class SerialManager<Vector<T>>
@@ -1765,6 +1832,70 @@ namespace opl
 				basis.push_back (v);
 		}
 		return basis;
+	}
+
+	template <class T>
+	Vector<T>
+	Vector<T>::d2_lregression (const std::vector<Vector>& data)
+	{
+		size_type n = data.size ();
+		Vector x_data (n);
+		Vector y_data (n);
+		for (size_type i = 0; i < n; ++i)
+		{
+			x_data[i] = data[i][0];
+			y_data[i] = data[i][1];
+		}
+
+		T x_mean = x_data.mean ();
+		T y_mean = y_data.mean ();
+
+		T num = 0;
+		T den = 0;
+
+		for (size_type i = 0; i < n; ++i)
+		{
+			num += (x_data[i] - x_mean) * (y_data[i] - y_mean);
+			den += (x_data[i] - x_mean) * (x_data[i] - x_mean);
+		}
+
+		T b = num / den;
+		T a = y_mean - b * x_mean;
+		Vector v (2);
+		v[0] = a;
+		v[1] = b;
+		return v;
+	}
+
+	template <class T>
+	T
+	Vector<T>::d2_correlation_coeff (const std::vector<Vector>& data)
+	{
+		size_type n = data.size ();
+		Vector x_data (n);
+		Vector y_data (n);
+		for (size_type i = 0; i < n; ++i)
+		{
+			x_data[i] = data[i][0];
+			y_data[i] = data[i][1];
+		}
+
+		T x_mean = x_data.mean ();
+		T y_mean = y_data.mean ();
+
+		T num = 0;
+		T den_x = 0;
+		T den_y = 0;
+		for (size_type i = 0; i < n; ++i)
+		{
+			T x_var = x_data[i] - x_mean;
+			T y_var = y_data[i] - y_mean;
+			num += x_var * y_var;
+			den_x += x_var * x_var;
+			den_y += y_var * y_var;
+		}
+
+		return num / std::sqrt (den_x * den_y);
 	}
 
 }

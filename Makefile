@@ -3,7 +3,7 @@ program_BUILD_DIR := build
 program_TARGET := bin/app
 program_INCLUDE_DIRS :=
 program_LIBRARY_DIRS :=
-program_LIBRARIES :=
+program_LIBRARIES := SDL2 SDL2_image SDL2_ttf SDL2_mixer
 program_SRCS = $(wildcard $(program_SRC_DIR)/*.cc)
 program_OBJS = $(patsubst $(program_SRC_DIR)/%,$(program_BUILD_DIR)/%,$(program_SRCS:.cc=.o))
 CC=gcc

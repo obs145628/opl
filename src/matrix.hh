@@ -17,6 +17,7 @@
 # include "algo.hh"
 # include "vector.hh"
 # include "math.hh"
+# include "types.hh"
 # include "serialization.hh"
 
 namespace opl
@@ -940,9 +941,65 @@ namespace opl
 	   	}
 
 		T
-		average () const
+		mean () const
 		{
-			return algo::average (data_, data_ + size_);
+			return algo::mean (data_, data_ + size_);
+		}
+
+		T
+		median () const
+		{
+			return algo::median (data_, data_ + size_);
+		}
+
+		T
+		quartile1 () const
+		{
+			return algo::quartile1 (data_, data_ + size_);
+		}
+
+		T
+		quartile3 () const
+		{
+			return algo::quartile3 (data_, data_ + size_);
+		}
+
+		T
+		interquartile_range () const
+		{
+			return algo::interquartile_range (data_, data_ + size_);
+		}
+
+		T
+		mode () const
+		{
+			return algo::mode (data_, data_ + size_);
+		}
+
+		T
+		variance () const
+		{
+			return algo::variance (data_, data_ + size_);
+		}
+
+		T
+		standard_deviation () const
+		{
+			return algo::standard_deviation (data_, data_ + size_);
+		}
+
+		void
+		saxpy (const T& x, const Matrix& m)
+		{
+			algo::saxpy (data_, data_ + size_, x, m.data_);
+		}
+
+		Matrix
+		saxpy_get (const T& x, const Matrix& m) const
+		{
+			Matrix res (rows_, cols_);
+			algo::saxpy (data_, data_ + size_, x, m.data_, res.data_);
+			return res;
 		}
 
 
@@ -1218,10 +1275,67 @@ namespace opl
 	   	}
 
 		T
-		row_average (size_type r) const
+		row_mean (size_type r) const
 		{
 			assert (r < rows_);
-			return algo::average (begin_row (r), end_row (r));
+			return algo::mean (begin_row (r), end_row (r));
+		}
+
+		T
+		row_median (size_type r) const
+		{
+			assert (r < rows_);
+			return algo::median (begin_row (r), end_row (r));
+		}
+
+		T
+		row_quartile1 (size_type r) const
+		{
+			assert (r < rows_);
+			return algo::quartile1 (begin_row (r), end_row (r));
+		}
+
+		T
+		row_quartile3 (size_type r) const
+		{
+			assert (r < rows_);
+			return algo::quartile3 (begin_row (r), end_row (r));
+		}
+
+		T
+		row_interquartile_range (size_type r) const
+		{
+			assert (r < rows_);
+			return algo::interquartile_range (begin_row (r), end_row (r));
+		}
+
+		T
+		row_mode (size_type r) const
+		{
+			assert (r < rows_);
+			return algo::mode (begin_row (r), end_row (r));
+		}
+
+		T
+		row_variance (size_type r) const
+		{
+			assert (r < rows_);
+			return algo::variance (begin_row (r), end_row (r));
+		}
+
+		T
+		row_standard_deviation (size_type r) const
+		{
+			assert (r < rows_);
+			return algo::standard_deviation (begin_row (r), end_row (r));
+		}
+
+		void
+		row_saxpy (const T& x, size_type r1, size_type r2)
+		{
+			assert (r1 < rows_);
+			assert (r2 < rows_);
+			algo::saxpy (begin_row (r1), end_row (r1), x, begin_row (r2));
 		}
 
 
@@ -1496,10 +1610,67 @@ namespace opl
 	   	}
 
 		T
-		col_average (size_type c) const
+		col_mean (size_type c) const
 		{
 		    assert (c < cols_);
-			return algo::average (begin_col (c), end_col (c));
+			return algo::mean (begin_col (c), end_col (c));
+		}
+
+		T
+		col_median (size_type c) const
+		{
+		    assert (c < cols_);
+			return algo::median (begin_col (c), end_col (c));
+		}
+
+		T
+		col_quartile1 (size_type c) const
+		{
+		    assert (c < cols_);
+			return algo::quartile1 (begin_col (c), end_col (c));
+		}
+
+		T
+		col_quartile3 (size_type c) const
+		{
+		    assert (c < cols_);
+			return algo::quartile3 (begin_col (c), end_col (c));
+		}
+
+		T
+		col_interquartile_range (size_type c) const
+		{
+		    assert (c < cols_);
+			return algo::interquartile_range (begin_col (c), end_col (c));
+		}
+
+		T
+		col_mode (size_type c) const
+		{
+		    assert (c < cols_);
+			return algo::mode (begin_col (c), end_col (c));
+		}
+
+		T
+		col_variance (size_type c) const
+		{
+		    assert (c < cols_);
+			return algo::variance (begin_col (c), end_col (c));
+		}
+
+		T
+		col_standard_deviation (size_type c) const
+		{
+		    assert (c < cols_);
+			return algo::standard_deviation (begin_col (c), end_col (c));
+		}
+
+		void
+		col_saxpy (const T& x, size_type c1, size_type c2)
+		{
+			assert (c1 < cols_);
+			assert (c2 < cols_);
+			algo::saxpy (begin_col (c1), end_col (c1), x, begin_col (c2));
 		}
 
 
@@ -3189,6 +3360,10 @@ namespace opl
 		void
 		householder_qr_decomposition(Matrix &q, Matrix &r) const;
 
+		///Computes the shur Decompodition A = UTU*
+		void
+		qr_algorithm (Matrix &u, Matrix &t) const;
+
 		///Calculate det(M) using Householder QR decomposition
 		T
 		qr_determinant () const;
@@ -3205,6 +3380,22 @@ namespace opl
 		Matrix<T>
 		qr_inverse () const;
 
+		///Compute the least squares solution with M full rank
+		Vector<T>
+		qr_least_squares (const Vector<T>& b) const;
+
+
+
+
+		//Eigein values / vectors
+
+		///Computes the eigein vector of the corresponding value approximation
+		Vector<T>
+		inverse_iteration (const T& value) const;
+
+		///Computes eigeinvalues and eigeinvectors
+		void
+		qr_eigein (Vector<T>& vals, varr_type& vects) const;
 
 
 
@@ -3292,7 +3483,9 @@ namespace opl
 
 	};
 
-	using mat_type = Matrix<double>;
+	using rmat_type = Matrix<r_type>;
+	using zmat_type = Matrix<z_type>;
+	using nmat_type = Matrix<n_type>;
 
 	template <class T>
 	class SerialManager<Matrix<T>>
@@ -4600,6 +4793,28 @@ namespace opl
 		}
 	}
 
+	template <class T>
+	void
+	Matrix<T>::qr_algorithm (Matrix &u, Matrix &t) const
+	{
+		assert (rows_ == cols_);
+		size_type n = rows_;
+
+		Matrix q;
+		Matrix r;
+		u = id (n);
+		t = *this;
+
+		size_type k = 0;
+		while (k < 100 && !t.is_upper_triangular ())
+		{
+		    t.householder_qr_decomposition (q, r);
+			t = r * q;
+			u *= q;
+			++k;
+		}
+	}
+
     template <class T>
 	T
 	Matrix<T>::qr_determinant () const
@@ -4650,6 +4865,63 @@ namespace opl
 	{
 		assert (rows_ == cols_);
 		return qr_solve_systems (id (rows_));
+	}
+
+	template <class T>
+	Vector<T>
+	Matrix<T>::qr_least_squares (const Vector<T>& b) const
+	{
+		assert (rows_ >= cols_);
+		assert (rows_ == b.size_);
+
+		size_type n = rows_;
+		size_type p = cols_;
+		Matrix q;
+		Matrix r;
+		householder_qr_decomposition (q, r);
+		Vector<T> y = q.region_matrix (0, 0, n, p).transpose() * b;
+		Matrix r1 = r.region_matrix (0, 0, p, p);
+
+		return r1.upper_triangular_solve_system (y);
+	}
+
+
+	//Eigein values / vectors
+
+
+	template <class T>
+	Vector<T>
+	Matrix<T>::inverse_iteration (const T& value) const
+	{
+		assert (rows_ == cols_);
+		size_type n = rows_;
+		Matrix inv = (*this - value * id (n)).plu_inverse ();
+		Vector<T> b (n, static_cast<T> (1));
+		while (!(*this * b - value * b).is_null ())
+		{
+			b = inv * b;
+			b.normalize ();
+		}
+
+	    return b;
+	}
+
+
+	template <class T>
+	void
+	Matrix<T>::qr_eigein (Vector<T>& vals, varr_type& vects) const
+	{
+		assert(rows_ == cols_);
+		size_type n = rows_;
+		Matrix u;
+		Matrix t;
+
+		qr_algorithm (u, t);
+		vals = t.diagonal_to_vector ();
+		vects.resize (n);
+
+		for (size_type i = 0; i < n; ++i)
+			vects[i] = inverse_iteration (vals[i]);
 	}
 
 
