@@ -16,6 +16,13 @@ namespace opl
 	namespace math
 	{
 
+		template <class T>
+		constexpr T
+		pi ()
+		{
+			return static_cast<T> (OPL_PI);
+		}
+
 		///returns (-1)^n
 		template <class T>
 		constexpr T

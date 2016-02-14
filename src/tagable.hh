@@ -16,6 +16,8 @@ namespace opl
 
 	public:
 
+		virtual ~Tagable () = default;
+
 		std::vector<std::string>
 		tags_get () const;
 
