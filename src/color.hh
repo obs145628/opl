@@ -24,6 +24,9 @@ namespace opl
 		static const Color BLACK;
 		static const Color WHITE;
 
+		static Color
+		progression (const Color& from, const Color& to, r_type coeff);
+
 
 		Color (uint8_t r, uint8_t g, uint8_t b, uint8_t a = 255);
 		Color (r_type r, r_type g, r_type b, r_type a = 1.0);

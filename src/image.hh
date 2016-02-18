@@ -1,8 +1,8 @@
 /** @file Imge class definition
  */
 
-#ifndef DEF_IMAGE_HH_
-#define DEF_IMAGE_HH_
+#ifndef IMAGE_HH_
+#define IMAGE_HH_
 
 # include <cstdint>
 # include <cstddef>
@@ -135,11 +135,4 @@ namespace opl
 
 }
 
-# if 0
-
-ImageRGBA *ImageRGBANewPNG(const char *path);
-int ImageRGBASaveToPNG(ImageRGBA *img, const char *path);
-
-# endif
-
-#endif
+#endif //!IMAGE_HH_

@@ -77,6 +77,12 @@ namespace opl
 		text_size_get (const std::string& text, const std::string& font,
 					   r_type size);
 
+		void
+		draw_polygon (const std::vector<r_type>& coords);
+
+		void
+		fill_polygon (const std::vector<r_type>& coords);
+
 	private:
 		static Canvas2D* instance_;
 		SDL_Renderer* renderer_;

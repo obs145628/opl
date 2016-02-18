@@ -5,6 +5,7 @@
 # define COMPONENT_2D_HH_
 
 # include <cstddef>
+# include "scene-infos-2d.hh"
 
 namespace opl
 {
@@ -25,10 +26,10 @@ namespace opl
 		init (Object2D* obj);
 
 		virtual void
-		will_update ();
+		will_update (const SceneInfos2D& infos);
 
 		virtual void
-		did_update ();
+		did_update (const SceneInfos2D& infos);
 
 		virtual size_t
 		id_get () = 0;

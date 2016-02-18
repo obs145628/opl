@@ -10,7 +10,7 @@ namespace opl
 		: Tagable (), enabled_ (true), visible_ (true),
 		  collider_enabled_ (true), collider_ (collider),
 		  children_ (), components_ (),
-		  parent_ (nullptr), root_ (this), mouse_ (nullptr)
+		  parent_ (nullptr)
 	{
 
 	}
@@ -155,27 +155,27 @@ namespace opl
 	}
 
 	void
-	Object2D::will_update ()
+	Object2D::will_update (const SceneInfos2D& infos)
 	{
 		for (auto it = children_.begin (); it != children_.end (); ++it)
 			if ((*it)->enabled_)
-				(*it)->will_update ();
+				(*it)->will_update (infos);
 
 		for (auto it = components_.begin (); it != components_. end(); ++it)
 			if (it->second->is_enabled ())
-				it->second->will_update ();
+				it->second->will_update (infos);
 	}
 
 	void
-	Object2D::did_update ()
+	Object2D::did_update (const SceneInfos2D& infos)
 	{
 		for (auto it = children_.begin (); it != children_.end (); ++it)
 			if ((*it)->enabled_)
-				(*it)->did_update ();
+				(*it)->did_update (infos);
 
 		for (auto it = components_.begin (); it != components_. end(); ++it)
 			if (it->second->is_enabled ())
-				it->second->did_update ();
+				it->second->did_update (infos);
 	}
 
 
@@ -304,8 +304,6 @@ namespace opl
 	{
 		children_.push_back (child);
 		child->parent_ = this;
-		child->root_ = root_;
-		child->mouse_ = mouse_;
 	}
 
 	void
@@ -345,24 +343,6 @@ namespace opl
 		return parent_;
 	}
 
-	Object2D*
-	Object2D::root_get () const
-	{
-		return root_;
-	}
-
-	Object2D*
-	Object2D::mouse_get () const
-	{
-		return mouse_;
-	}
-
-	void
-	Object2D::mouse_set (Object2D* mouse)
-	{
-		mouse_ = mouse;
-	}
-
 
 	void
 	Object2D::component_insert (Component2D* component)
@@ -371,6 +351,46 @@ namespace opl
 		assert (components_.find (id) == components_.end ());
 		components_[id] = component;
 		component->init (this);
+	}
+
+
+	std::vector<Object2D*>
+	Object2D::find_tag (const std::string& tag)
+	{
+		std::vector<Object2D*> objs;
+		find_tag_insert_ (tag, objs);
+		return objs;
+	}
+
+	Object2D*
+	Object2D::find_first_tag (const std::string& tag)
+	{
+		for (auto it = children_.begin (); it != children_.end (); ++it)
+		{
+			Object2D* obj = *it;
+			if (obj->has_tag (tag))
+				return obj;
+
+			Object2D* res = find_first_tag (tag);
+			if (res)
+				return res;
+		}
+
+		return nullptr;
+	}
+
+	void
+	Object2D::find_tag_insert_ (const std::string& tag,
+								std::vector<Object2D*> objs)
+	{
+		for (auto it = children_.begin (); it != children_.end (); ++it)
+		{
+			Object2D* obj = *it;
+			if (obj->has_tag (tag))
+				objs.push_back (obj);
+
+		    find_tag_insert_ (tag, objs);
+		}
 	}
 
 }

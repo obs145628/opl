@@ -47,9 +47,11 @@ namespace opl
 	size_t EmComponent2D::ID = 1;
 
 	void
-	EmComponent2D::will_update ()
+	EmComponent2D::will_update (const SceneInfos2D& infos)
 	{
-		bool on = cm_->are_colliding (obj_, obj_->mouse_get ());
+
+		bool on = cm_->are_colliding (obj_, infos.mouse);
+
 
 		mouse_entered_ = !mouse_on_ && on;
 		mouse_exited_ = mouse_on_ && !on;

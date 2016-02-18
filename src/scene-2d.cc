@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <cassert>
 #include "scene-2d.hh"
+#include "scene-infos-2d.hh"
 #include "math.hh"
 
 namespace opl
@@ -21,10 +22,9 @@ namespace opl
 	Scene2D::build ()
 	{
 		root_ = new EmptyObject2D (0, 0);
-		Pixel2D* mouse_pix = new Pixel2D (0, 0, Color::BLACK);
-		mouse_pix->hide ();
-		mouse_pix->collider_set_default ();
-		root_->mouse_set (mouse_pix);
+		mouse_pix_ = new Pixel2D (0, 0, Color::BLACK);
+		mouse_pix_->hide ();
+		mouse_pix_->collider_set_default ();
 		init_ ();
 	}
 
@@ -39,7 +39,7 @@ namespace opl
 			cam_ = nullptr;
 		}
 
-		delete root_->mouse_get ();
+		delete mouse_pix_;
 		delete root_;
 	}
 
@@ -54,9 +54,16 @@ namespace opl
 			cam_->screen_resize (w_, h_);
 		update_mouse_ ();
 
-		root_->will_update ();
+		SceneInfos2D infos;
+		infos.cam = cam_;
+		infos.mouse = mouse_pix_;
+		infos.root = root_;
+		infos.canvas = cv_;
+		infos.delta = delta_;
+
+		root_->will_update (infos);
 		update_ ();
-		root_->did_update ();
+		root_->did_update (infos);
 
 
 
@@ -184,7 +191,7 @@ namespace opl
 	Vector2D
 	Scene2D::mouse_position () const
 	{
-		return root_->mouse_get ()->position_get ();
+		return mouse_pix_->position_get ();
 	}
 
 
@@ -208,6 +215,30 @@ namespace opl
 		Camera2D* cam = new StaticCamera2D (x, y, w_, h_);
 		camera_set (cam);
 	}
+
+	void
+	Scene2D::w_static_camera_set (r_type x, r_type y, r_type width)
+	{
+		Camera2D* cam = new WStaticCamera2D (x, y, w_, h_, width);
+		camera_set (cam);
+	}
+
+	void
+	Scene2D::h_static_camera_set (r_type x, r_type y, r_type height)
+	{
+		Camera2D* cam = new HStaticCamera2D (x, y, w_, h_, height);
+		camera_set (cam);
+	}
+
+	void
+	Scene2D::fixed_camera_set (r_type x, r_type y,
+							   r_type width, r_type height)
+	{
+		Camera2D* cam = new FixedCamera2D (x, y, w_, h_, width, height);
+		camera_set (cam);
+	}
+
+
 
 
 	EmptyObject2D*
@@ -345,21 +376,20 @@ namespace opl
 		return obj;
 	}
 
-	Polygon2D*
+	Rectangle2D*
 	Scene2D::create_rectangle (r_type x, r_type y,
 							   r_type width, r_type height,
 							   bool filled, const Color& c)
 	{
-		return new Polygon2D (Polygon2D::rectangle(x, y, width, height,
-												   filled, c));
+		return new Rectangle2D (x, y, width, height, filled, c);
 	}
 
-	Polygon2D*
+	Rectangle2D*
 	Scene2D::insert_rectangle (r_type x, r_type y,
 							   r_type width, r_type height,
 							   bool filled, const Color& c)
 	{
-		Polygon2D* obj = create_rectangle (x, y, width, height, filled, c);
+		Rectangle2D* obj = create_rectangle (x, y, width, height, filled, c);
 		insert_object (obj);
 		return obj;
 	}
@@ -376,6 +406,82 @@ namespace opl
 							r_type w, r_type h, const Color&c)
 	{
 		Sprite2D* obj = create_sprite (path, x, y, w, h, c);
+		insert_object (obj);
+		return obj;
+	}
+
+	Button2D*
+	Scene2D::create_button (const std::string& text, r_type x, r_type y,
+							r_type size, r_type w, r_type h)
+	{
+		return new Button2D (text, x, y, size, w, h);
+	}
+
+	Button2D*
+	Scene2D::insert_button (const std::string& text, r_type x, r_type y,
+							r_type size, r_type w, r_type h)
+	{
+		Button2D* obj = create_button (text, x, y, size, w, h);
+		insert_object (obj);
+		return obj;
+	}
+
+	TextField2D*
+	Scene2D::create_text_field (const std::string& text, r_type x, r_type y,
+								r_type size, r_type w, r_type h)
+	{
+		return new TextField2D (text, x, y, size, w, h);
+	}
+
+	TextField2D*
+	Scene2D::insert_text_field (const std::string& text, r_type x, r_type y,
+								r_type size, r_type w, r_type h)
+	{
+		TextField2D* obj = create_text_field (text, x, y, size, w, h);
+		insert_object (obj);
+		return obj;
+	}
+
+	MultiLabel2D*
+	Scene2D::create_multi_label (const std::string& text, r_type x,
+								 r_type y,
+								 n_type size, const std::string& font,
+								 r_type width, const Color& c)
+	{
+		return new MultiLabel2D (text, x, y, size, font, width, c);
+	}
+
+	MultiLabel2D*
+	Scene2D::insert_multi_label (const std::string& text, r_type x,
+								 r_type y,
+								 n_type size, const std::string& font,
+								 r_type width, const Color& c)
+	{
+		MultiLabel2D* obj = create_multi_label (text, x, y, size,
+												font, width, c);
+		insert_object (obj);
+		return obj;
+	}
+
+	ProgressBar2D*
+	Scene2D::create_progress_bar (r_type x, r_type y, r_type w, r_type h,
+								  r_type value, const Color& border_color,
+								  const Color& empty_color,
+								  const Color& full_color)
+	{
+		return new ProgressBar2D (x, y, w, h, value, border_color,
+								  empty_color, full_color);
+	}
+
+	ProgressBar2D*
+	Scene2D::insert_progress_bar (r_type x, r_type y, r_type w, r_type h,
+								  r_type value, const Color& border_color,
+								  const Color& empty_color,
+								  const Color& full_color)
+	{
+		ProgressBar2D* obj = create_progress_bar (x, y, w, h, value,
+												  border_color, empty_color,
+												  full_color);
 		insert_object (obj);
 		return obj;
 	}
@@ -414,9 +520,8 @@ namespace opl
 	void
 	Scene2D::update_mouse_ ()
 	{
-		Object2D* mouse_obj = root_->mouse_get ();
 		Vector2D pos = screen_to_scene_position (mouse_->position ());
-		mouse_obj->position_set (pos);
+		mouse_pix_->position_set (pos);
 	}
 
 

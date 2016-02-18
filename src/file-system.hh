@@ -1,4 +1,4 @@
-/** @file FileSystem class definition
+/** @file set of files functions manipulation
  */
 
 #ifndef FILE_SYSTEM_HH_
@@ -6,94 +6,63 @@
 
 # include <string>
 # include <vector>
-# include "path-manager.hh"
+# include "file-stat.hh"
 
 namespace opl
 {
 
-	class FileStat
-	{
-	public:
-		static const char type_unknown;
-		static const char type_file;
-		static const char type_dir;
 
-		char type;
-		size_t size;
-		time_t atime;
-		time_t mtime;
-		time_t ctime;
-	};
+	std::vector<char>
+	file_read (const std::string& path);
 
-	/**
-	 * Handle basic file i/o operations
-	 */
-	class FileSystem
-	{
+	void
+	file_write (const std::string& path, const std::vector<char>& data);
 
-	public:
-		using data_type = std::vector<char>;
+	void
+	file_append (const std::string& path, const std::vector<char>& data);
 
+	std::string
+	file_text_read (const std::string& path);
 
-	    virtual data_type
-		read_file (const std::string& path);
+	void
+	file_text_write (const std::string& path, const std::string& data);
 
-		virtual void
-		write_file (const std::string& path, const data_type& data);
+	void
+	file_text_append (const std::string& path, const std::string& data);
 
-		virtual void
-		append_file (const std::string& path, const data_type& data);
+	void
+	file_copy (const std::string& src, const std::string& dst);
 
-		virtual std::string
-		read_text_file (const std::string& path);
+	void
+	file_remove (const std::string& path);
 
-		virtual void
-		write_text_file (const std::string& path, const std::string& data);
+	void
+	file_move (const std::string& src, const std::string& dst);
 
-		virtual void
-		append_text_file (const std::string& path, const std::string& data);
+	FileStat
+	file_stat (const std::string& path);
+
+	bool
+	file_exists (const std::string& path);
 
 
-		virtual void
-		copy_file (const std::string& src, const std::string& dst);
+	std::vector<std::string>
+	dir_read (const std::string& path);
 
-		virtual void
-		remove_file (const std::string& path);
+	void
+	dir_make (const std::string& path);
 
-		virtual void
-		move_file (const std::string& src, const std::string& dst);
+	void
+    dir_remove_empty (const std::string& path);
 
-		virtual FileStat
-		stat (const std::string& path) = 0;
+	void
+	dir_remove (const std::string& path);
 
-		virtual bool
-		exists (const std::string& path);
+	void
+	dir_copy (const std::string& src, const std::string& dst);
 
-
-
-		virtual std::vector<std::string>
-		read_dir (const std::string& path) = 0;
-
-		virtual void
-		make_dir (const std::string& path) = 0;
-
-		virtual void
-		remove_empty_dir(const std::string& path);
-
-		virtual void
-		remove_dir (const std::string& path);
-
-		virtual void
-		copy_dir (const std::string& src, const std::string& dst);
-
-		virtual void
-		move_dir (const std::string& src, const std::string& dst);
-
-	protected:
-		PathManager* path_manager_;
-
-
-	};
+	void
+	dir_move (const std::string& src, const std::string& dst);
 
 }
 

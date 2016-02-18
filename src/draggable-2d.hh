@@ -26,7 +26,7 @@ namespace opl
 		init (Object2D* obj) override;
 
 		virtual void
-		will_update () override;
+		will_update (const SceneInfos2D& infos) override;
 
 		virtual size_t
 		id_get () override;

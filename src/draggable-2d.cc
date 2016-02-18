@@ -25,16 +25,16 @@ namespace opl
 	}
 
 	void
-	Draggable2D::will_update ()
+	Draggable2D::will_update (const SceneInfos2D& infos)
 	{
-		emc_->will_update ();
+		emc_->will_update (infos);
 
 		if (!dragging_)
 		{
 			if (emc_->is_button_pressed (Mouse2D::LEFT))
 			{
 				dragging_ = true;
-				mouse_last_ = obj_->mouse_get ()->position_get ();
+				mouse_last_ = infos.mouse->position_get ();
 				obj_last_ = obj_->position_get ();
 			}
 		}
@@ -46,7 +46,7 @@ namespace opl
 
 		else
 		{
-			Vector2D mouse_pos = obj_->mouse_get ()->position_get ();
+			Vector2D mouse_pos = infos.mouse->position_get ();
 			Vector2D dm = mouse_pos - mouse_last_;
 			mouse_last_ = mouse_pos;
 			obj_->position_move (dm);

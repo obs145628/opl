@@ -1,10 +1,5 @@
-#define _POSIX_C_SOURCE 200809L
-#ifndef _GNU_SOURCE
-# define _GNU_SOURCE
-#endif //!_GNU_SOURCE
-
 #include <ctime>
-#include <cstdlib>
+#include <chrono>
 #include "date.hh"
 #include "cstr-utils.hh"
 
@@ -62,10 +57,27 @@ namespace
 
 	time_t gtm_offset_ms_get()
 	{
-		time_t t = time(0);
+		/*time_t t = time(0);
 		struct tm lt;
 		localtime_r(&t, &lt);
 		return lt.tm_gmtoff * 1000;
+		*/
+
+		time_t currtime;
+		struct tm* timeinfo;
+		std::time (&currtime);
+
+		timeinfo = std::gmtime (&currtime);
+
+		time_t utc = std::mktime (timeinfo);
+		timeinfo = std::localtime (&currtime);
+		time_t local = std::mktime (timeinfo);
+		time_t offset = std::difftime(local, utc);
+
+		if (timeinfo->tm_isdst)
+			offset += 3600;
+
+		return offset * 1000;;
 	}
 
 	bool leap_year(int y)
@@ -92,16 +104,15 @@ namespace opl
 	time_t
 	Date::timestamp_ms ()
 	{
-		struct timespec spec;
-		clock_gettime (CLOCK_REALTIME, &spec);
-		time_t ms = spec.tv_nsec / 1.0e6;
-		return 1000 * spec.tv_sec + ms;
+		auto ms = std::chrono::duration_cast<std::chrono::milliseconds>
+			(std::chrono::system_clock::now ().time_since_epoch ());
+		return ms.count();
 	}
 
 	time_t
 	Date::timestamp_s ()
 	{
-		return Date::timestamp_ms() / 1000;
+		return std::time (nullptr);
 	}
 
 	Date::Date ()

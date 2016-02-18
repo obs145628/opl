@@ -137,7 +137,6 @@ namespace opl
 	void
 	Label2D::scale (r_type sx, r_type sy)
 	{
-		assert (sx == sy);
 		Object2D::scale (sx, sy);
 
 		size_ *= sx;
@@ -156,7 +155,6 @@ namespace opl
 		  r_type sx, r_type sy)
 	{
 		Object2D::draw (cv, dx, dy, sx, sy);
-		assert (sx == sy);
 		r_type x_c = dx + x_ * sx;
 		r_type y_c = dy + y_ * sy;
 		r_type size = size_ * sx;

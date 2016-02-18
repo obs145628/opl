@@ -1,6 +1,5 @@
-#define _POSIX_C_SOURCE 200809L
-
-#include <cstdlib>
+#include <chrono>
+#include <thread>
 #include "time.hh"
 #include "cstr-utils.hh"
 
@@ -16,12 +15,7 @@ namespace opl
     void
 	Time::sleep (time_t t)
 	{
-		struct timespec req, rem;
-		time_t sec = t / 1000;
-		long ms = t % 1000;
-		req.tv_sec = sec;
-		req.tv_nsec = ms * 1.0e6;
-		nanosleep (&req, &rem);
+		std::this_thread::sleep_for (std::chrono::milliseconds (t));
 	}
 
 	Time

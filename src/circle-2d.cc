@@ -108,14 +108,13 @@ namespace opl
 	void
 	Circle2D::scale (r_type sx, r_type sy)
 	{
-		assert (sx == sy);
+		Object2D::scale (sx, sy);
 		r_ *= sx;
 	}
 
 	void
 	Circle2D::draw (Canvas2D *cv, r_type dx, r_type dy, r_type sx, r_type sy)
 	{
-		assert (sx == sy);
 		Object2D::draw (cv, dx, dy, sx, sy);
 
 		cv->draw_color_set (color_);

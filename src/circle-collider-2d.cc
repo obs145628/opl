@@ -68,9 +68,8 @@ namespace opl
 	}
 
 	void
-	CircleCollider2D::scale (r_type sx, r_type sy)
+	CircleCollider2D::scale (r_type sx, r_type)
 	{
-		assert (sx == sy);
 		r_ *= sx;
 	}
 

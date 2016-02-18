@@ -18,13 +18,13 @@ namespace opl
 
 
 	void
-	Component2D::will_update ()
+	Component2D::will_update (const SceneInfos2D&)
 	{
 
 	}
 
 	void
-	Component2D::did_update ()
+	Component2D::did_update (const SceneInfos2D&)
 	{
 
 	}

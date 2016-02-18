@@ -1,3 +1,4 @@
+#include <cassert>
 #include "color.hh"
 
 namespace opl
@@ -8,6 +9,25 @@ namespace opl
 	const Color Color::BLUE (static_cast <uint8_t> (0), 0, 255);
 	const Color Color::BLACK (static_cast <uint8_t> (0), 0, 0);
 	const Color Color::WHITE (static_cast <uint8_t> (255), 255, 255);
+
+	Color
+	Color::progression (const Color& from, const Color& to, r_type coeff)
+	{
+		assert (coeff >= 0 && coeff <= 1);
+		r_type r_from = from.dred ();
+		r_type g_from = from.dgreen ();
+		r_type b_from = from.dblue ();
+		r_type a_from = from.dalpha ();
+		r_type r_to = to.dred ();
+		r_type g_to = to.dgreen ();
+		r_type b_to = to.dblue ();
+		r_type a_to = to.dalpha ();
+
+		return Color (r_from + (r_to - r_from) * coeff,
+					  g_from + (g_to - g_from) * coeff,
+					  b_from + (b_to - b_from) * coeff,
+					  a_from + (a_to - a_from) * coeff);
+	}
 
 	Color::Color (uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 		: r_ (r), g_ (g), b_ (b), a_ (a)

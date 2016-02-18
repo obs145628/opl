@@ -1,41 +1,54 @@
 #include <cstdio>
+#include <cstring>
 #include <stdexcept>
 #include <iterator>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 #include "file-system.hh"
+#include "path.hh"
+#include "system.hh"
+
+#if defined (PLATFORM_UNIX_)
+# include <dirent.h>
+# include <sys/types.h>
+# include <unistd.h>
+# include <sys/stat.h>
+#else
+# include <windows.h>
+#endif
+
+
+
+
 
 namespace opl
 {
 
-	const char FileStat::type_unknown = 0;
-	const char FileStat::type_file = 1;
-	const char FileStat::type_dir = 2;
-
-	FileSystem::data_type
-	FileSystem::read_file (const std::string& path)
+	std::vector<char>
+	file_read (const std::string& path)
 	{
-		std::ifstream fs(path, std::ios::binary);
-		return data_type (std::istreambuf_iterator<char> (fs),
-						  std::istreambuf_iterator<char> ());
+		std::ifstream fs (path, std::ios::binary);
+		return std::vector<char> (std::istreambuf_iterator<char> (fs),
+								  std::istreambuf_iterator<char> ());
 	}
 
 	void
-	FileSystem::write_file (const std::string& path, const data_type& data)
+	file_write (const std::string& path, const std::vector<char>& data)
 	{
 		std::ofstream fs (path, std::ios::out | std::ios::binary);
 		fs.write (&data[0], data.size ());
 	}
 
 	void
-	FileSystem::append_file (const std::string& path, const data_type& data)
+	file_append (const std::string& path, const std::vector<char>& data)
 	{
 		std::ofstream fs (path, std::ios::app | std::ios::binary);
 		fs.write (&data[0], data.size ());
 	}
 
 	std::string
-	FileSystem::read_text_file (const std::string& path)
+	file_text_read (const std::string& path)
 	{
 		std::ifstream fs (path);
 		std::stringstream buffer;
@@ -44,25 +57,21 @@ namespace opl
 	}
 
 	void
-	FileSystem::write_text_file (const std::string& path,
-								 const std::string& data)
+	file_text_write (const std::string& path, const std::string& data)
 	{
 		std::ofstream fs (path);
 		fs << data;
 	}
 
 	void
-	FileSystem::append_text_file (const std::string& path,
-								  const std::string& data)
+	file_text_append (const std::string& path, const std::string& data)
 	{
 		std::ofstream fs (path, std::ios_base::app);
 		fs << data;
 	}
 
-
 	void
-	FileSystem::copy_file (const std::string& src,
-						   const std::string& dst)
+	file_copy (const std::string& src, const std::string& dst)
 	{
 		std::ifstream ifs (src, std::ios::binary);
 		std::ofstream ofs (dst, std::ios::binary);
@@ -70,7 +79,14 @@ namespace opl
 	}
 
 	void
-	FileSystem::move_file (const std::string& src, const std::string& dst)
+	file_remove (const std::string& path)
+	{
+		if (std::remove (path.c_str ()))
+			throw std::runtime_error ("remove_file error");
+	}
+
+	void
+	file_move (const std::string& src, const std::string& dst)
 	{
 		if (std::rename (src.c_str (), dst.c_str ()))
 		{
@@ -78,73 +94,138 @@ namespace opl
 		}
 	}
 
-	void
-	FileSystem::remove_file (const std::string& path)
+	FileStat
+	file_stat (const std::string& path)
 	{
-		if (std::remove (path.c_str ()))
-			throw std::runtime_error ("remove_file error");
+		FileStat fs;
+
+#if defined (PLATFORM_UNIX_)
+
+		struct stat buffer;
+
+		if (stat (path.c_str (), &buffer))
+		{
+			fs.type = FileStat::type_unknown;
+			return fs;
+		}
+
+		if (S_ISREG (buffer.st_mode))
+			fs.type = FileStat::type_file;
+		else if (S_ISDIR (buffer.st_mode))
+			fs.type = FileStat::type_dir;
+		else
+			fs.type = FileStat::type_unknown;
+
+		fs.size = buffer.st_size;
+		fs.atime = buffer.st_atime;
+		fs.ctime = buffer.st_ctime;
+		fs.mtime = buffer.st_mtime;
+
+#else
+
+		throw std::runtime_error ("file_stat win not implemented");
+
+#endif
+
+		return fs;
 	}
 
 	bool
-	FileSystem::exists (const std::string& path)
+	file_exists (const std::string& path)
 	{
-		return stat (path).type != FileStat::type_unknown;
+		return file_stat (path).type != FileStat::type_unknown;
+	}
+
+
+	std::vector<std::string>
+	dir_read (const std::string& path)
+	{
+		std::vector<std::string> files;
+
+#if defined (PLATFORM_UNIX_)
+
+		DIR *d;
+		struct dirent *dir;
+		d = opendir (path.c_str ());
+		if (!d)
+			throw std::runtime_error ("read_dir error");
+
+		while ((dir = readdir (d)))
+			if (strcmp (dir->d_name, ".") && strcmp (dir->d_name, ".."))
+				files.push_back (std::string (dir->d_name));
+
+#else
+
+		throw std::runtime_error ("dir_read win not implemented");
+
+#endif
+
+	    return files;
 	}
 
 	void
-	FileSystem::remove_empty_dir(const std::string& path)
+	dir_make (const std::string& path)
+	{
+#if defined (PLATFORM_UNIX_)
+		if (mkdir (path.c_str(), 0700))
+			throw std::runtime_error ("make_dir error");
+#else
+		CreateDirectory (path, 0);
+#endif
+
+	}
+
+	void
+    dir_remove_empty (const std::string& path)
 	{
 		if (std::remove (path.c_str ()))
 			throw std::runtime_error ("remove_empty_dir error");
 	}
 
 	void
-	FileSystem::remove_dir (const std::string& path)
+	dir_remove (const std::string& path)
 	{
-		std::vector<std::string> files = read_dir (path);
+		std::vector<std::string> files = dir_read (path);
 		for (auto it = files.begin (); it != files.end (); ++it)
 		{
-			std::string file = std::string (path_manager_
-			   ->join (path.c_str (), (*it).c_str ()));
-			FileStat fs = stat (file);
+			std::string file = opl::path::join (path, *it);
+			FileStat fs =file_stat (file);
 
 			if (fs.type == FileStat::type_file)
-				remove_file (file);
+				file_remove (file);
 			else if (fs.type == FileStat::type_dir)
-				remove_dir (file);
+				dir_remove (file);
 			else
 				throw std::runtime_error ("remove_dir");
 		}
 
-		remove_empty_dir (path);
+		dir_remove_empty (path);
 	}
 
 	void
-	FileSystem::copy_dir (const std::string& src, const std::string& dst)
+	dir_copy (const std::string& src, const std::string& dst)
 	{
-		std::vector<std::string> files = read_dir (src);
-		make_dir(dst);
+		std::vector<std::string> files = dir_read (src);
+		dir_make (dst);
 
 		for (auto it = files.begin (); it != files.end (); ++it)
 		{
 
-		    std::string src_file = std::string (path_manager_
-			   ->join (src.c_str (), (*it).c_str ()));
-			std::string dst_file = std::string (path_manager_
-			   ->join (dst.c_str (), (*it).c_str ()));
-			FileStat fs = stat (src_file);
+		    std::string src_file = opl::path::join (src, *it);
+			std::string dst_file = opl::path::join (dst, *it);
+			FileStat fs = file_stat (src_file);
 
 			if (fs.type == FileStat::type_file)
-				copy_file (src_file, dst_file);
+				file_copy (src_file, dst_file);
 			else if (fs.type == FileStat::type_dir)
-				copy_dir (src_file, dst_file);
+				dir_copy (src_file, dst_file);
 			else
 				throw std::runtime_error ("copy_dir");
 		}
 	}
 
 	void
-	FileSystem::move_dir (const std::string& src, const std::string& dst)
+	dir_move (const std::string& src, const std::string& dst)
 	{
 		if (std::rename (src.c_str (), dst.c_str ()))
 			throw std::runtime_error ("move_dir error");

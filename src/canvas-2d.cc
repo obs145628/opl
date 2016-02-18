@@ -1,4 +1,5 @@
 #include <cassert>
+#include <algorithm>
 #include "canvas-2d.hh"
 #include "math.hh"
 
@@ -187,6 +188,69 @@ namespace opl
 		SDL_FreeSurface (text_surface);
 		return res;
 	}
+
+	void
+	Canvas2D::draw_polygon (const std::vector<r_type>& coords)
+	{
+		size_t n = coords.size ();
+		for (size_t i = 0; i < n; i += 2)
+		{
+			draw_line (coords[i], coords[i + 1],
+					   coords [(i + 2) % n], coords [(i + 3) % n]);
+		}
+	}
+
+	void
+	Canvas2D::fill_polygon (const std::vector<r_type>& coords)
+	{
+		size_t n = coords.size ();
+		r_type y_min = coords[1];
+		r_type y_max = coords[1];
+		for (size_t i = 3; i < n; i += 2)
+		{
+			if (coords[i] < y_min)
+				y_min = coords[i];
+			else if (coords[i] > y_max)
+				y_max = coords[i];
+		}
+
+		std::vector<int> nodes;
+
+		for (int y = static_cast<int> (y_min);
+			 y <= static_cast<int> (y_max); ++y)
+		{
+			r_type yr = y;
+			for (size_t i = 0; i < n; i += 2)
+			{
+				r_type x1 = coords[i];
+				r_type y1 = coords[i + 1];
+				r_type x2 = coords[(i + 2) % n];
+				r_type y2 = coords[(i + 3) % n];
+
+				if ( (y1 < yr && y2 >= yr) || (y2 < yr && y1 >= yr) )
+				{
+					r_type node = x1 + (yr - y1) / (y2 - y1)
+										  * (x2 - x1);
+					nodes.push_back (static_cast<int> (node));
+				}
+			}
+
+			std::sort (nodes.begin(), nodes.end ());
+
+			for (size_t i = 0; i < nodes.size (); i += 2)
+			{
+				int x_min = nodes[i];
+				int x_max = nodes[i+1];
+				for (int x = x_min; x <= x_max; ++x)
+					SDL_RenderDrawPoint(renderer_, x, y);
+
+			}
+
+			nodes.clear ();
+
+		}
+	}
+
 
 
 	void

@@ -1,27 +1,28 @@
-/** @file Label2D class definition
+/** @file MultiLabel2D class definition
  */
 
-#ifndef LABEL_2D_HH_
-# define LABEL_2D_HH_
+#ifndef MULTI_LABEL_2D_HH_
+# define MULTI_LABEL_2D_HH_
 
 # include <string>
+# include <vector>
 # include "object-2d.hh"
-# include "color.hh"
-# include "types.hh"
+
 
 namespace opl
 {
 
-	///2D sdl object reprenting a text label
-	class Label2D: public Object2D
+	///Dsiplay 2D text on multiple lignes
+	class MultiLabel2D: public Object2D
 	{
 
-	public:
+		public:
 
-		Label2D (const std::string& text, r_type x, r_type y, r_type size,
-				 const std::string& font, const Color& c,
+		MultiLabel2D (const std::string& str, r_type x, r_type y, r_type size,
+				 const std::string& font, r_type w, const Color& c,
 				 Collider2D* collider = nullptr);
-		virtual ~Label2D () = default;
+
+		virtual ~MultiLabel2D () = default;
 
 		std::string
 		text_get () const;
@@ -41,17 +42,20 @@ namespace opl
 		void
 		font_set (const std::string& font);
 
+		r_type
+		width_get () const;
+
+		void
+		width_set (r_type width);
+
+		r_type
+		height_get () const;
+
 		Color
 		color_get () const;
 
 		void
 		color_set (const Color& c);
-
-		r_type
-		width_get () const;
-
-		r_type
-		height_get () const;
 
 
 		virtual r_type
@@ -95,18 +99,26 @@ namespace opl
 		r_type y_;
 		r_type size_;
 		std::string font_;
+		r_type width_;
 		Color color_;
-
 		r_type angle_;
-		r_type w_;
-		r_type h_;
+		r_type hline_;
+
+		std::vector<std::string> texts_;
+		Canvas2D* canvas_;
+		r_type height_;
+
+
+		Vector2D
+		text_size_ (const std::string& text);
 
 		void
-		size_update_ ();
+		update_text_ ();
 
 
 	};
 
 }
 
-#endif //!LABEL_2D_HH_
+
+#endif //!MULTI_LABEL_2D_HH_

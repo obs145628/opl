@@ -22,7 +22,7 @@ namespace opl
 		EmComponent2D ();
 
 		virtual void
-		will_update () override;
+		will_update (const SceneInfos2D& infos) override;
 
 		virtual size_t
 		id_get () override;

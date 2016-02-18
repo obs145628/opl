@@ -8,6 +8,9 @@
 # include "object-2d.hh"
 # include "camera-2d.hh"
 # include "static-camera-2d.hh"
+# include "w-static-camera-2d.hh"
+# include "h-static-camera-2d.hh"
+# include "fixed-camera-2d.hh"
 # include "rect.hh"
 # include "mouse-2d.hh"
 # include "keyboard-2d.hh"
@@ -20,7 +23,12 @@
 # include "circle-2d.hh"
 # include "label-2d.hh"
 # include "polygon-2d.hh"
+# include "rectangle-2d.hh"
 # include "sprite-2d.hh"
+# include "button-2d.hh"
+# include "text-field-2d.hh"
+# include "multi-label-2d.hh"
+# include "progress-bar-2d.hh"
 # include "keyboard-controller-2d.hh"
 
 namespace opl
@@ -90,6 +98,15 @@ namespace opl
 
 	    void
 		static_camera_set (r_type x, r_type y);
+
+		void
+		w_static_camera_set (r_type x, r_type y, r_type width);
+
+		void
+		h_static_camera_set (r_type x, r_type y, r_type height);
+
+		void
+		fixed_camera_set (r_type x, r_type y, r_type width, r_type height);
 
 
 
@@ -162,11 +179,11 @@ namespace opl
 						 r_type x3, r_type y3,
 						 bool filled, const Color& c);
 
-		Polygon2D*
+		Rectangle2D*
 		create_rectangle (r_type x, r_type y, r_type width, r_type height,
 						  bool filled, const Color& c);
 
-		Polygon2D*
+		Rectangle2D*
 		insert_rectangle (r_type x, r_type y, r_type width, r_type height,
 						  bool filled, const Color& c);
 
@@ -177,6 +194,47 @@ namespace opl
 		Sprite2D*
 		insert_sprite (const std::string& path, r_type x, r_type y,
 					   r_type w, r_type h, const Color&c = Color::WHITE);
+
+		Button2D*
+		create_button (const std::string& text, r_type x, r_type y,
+					   r_type size, r_type w, r_type h);
+
+		Button2D*
+		insert_button (const std::string& text, r_type x, r_type y,
+					   r_type size, r_type w, r_type h);
+
+		TextField2D*
+		create_text_field (const std::string& text, r_type x, r_type y,
+						   r_type size, r_type w, r_type h);
+
+		TextField2D*
+		insert_text_field (const std::string& text, r_type x, r_type y,
+						   r_type size, r_type w, r_type h);
+
+		MultiLabel2D*
+		create_multi_label (const std::string& text, r_type x, r_type y,
+							n_type size, const std::string& font,
+							r_type width, const Color& c);
+
+		MultiLabel2D*
+		insert_multi_label (const std::string& text, r_type x, r_type y,
+							n_type size, const std::string& font,
+							r_type width, const Color& c);
+
+
+		ProgressBar2D*
+		create_progress_bar (r_type x, r_type y, r_type w, r_type h,
+							 r_type value, const Color& border_color,
+							 const Color& empty_color,
+							 const Color& full_color);
+
+		ProgressBar2D*
+		insert_progress_bar (r_type x, r_type y, r_type w, r_type h,
+							 r_type value, const Color& border_color,
+							 const Color& empty_color,
+							 const Color& full_color);
+
+
 
 
 
@@ -211,6 +269,7 @@ namespace opl
 	private:
 		Canvas2D* cv_;
 	    Object2D* root_;
+		Pixel2D* mouse_pix_;
 	    r_type w_;
 		r_type h_;
 

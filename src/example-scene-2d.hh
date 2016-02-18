@@ -24,8 +24,10 @@ namespace opl
 
 	private:
 		KeyboardController2D* ctrl_;
-		Object2D* player_;
+		TextField2D* player_;
 		Polygon2D* other_;
+		Object2D* obj_;
+		Rectangle2D* border_;
 
 	};
 

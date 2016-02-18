@@ -9,39 +9,32 @@ namespace opl
 	ExampleScene2D::init_ ()
    	{
 		std::cout << "Init ExampleScene2D\n";
-		static_camera_set(39.5, -54.18);
+		fixed_camera_set (39.5, -54.18, 1200, 500);
 
-		cam_->background_set(Color::BLACK);
+		//cam_->background_set(Color::BLACK);
 
-		player_ = insert_rectangle (0, 0, 90, 60, false, Color::WHITE);
+		std::string text ("Hello me\nGo to sleep and never go home, lolipop. Everything starts where everything stops, and nothing ends as long as the end didn't came.");
 
-		player_->collider_set_default ();
+		obj_ = insert_multi_label(text, 0, 0, 24, "lazy", 400, Color::BLACK);
 
-		other_ = insert_triangle(80, 60, 220, 340, 190, 55 , false, Color::WHITE);
-		other_->collider_set_default ();
+		MultiLabel2D* multi = static_cast<MultiLabel2D*> (obj_);
 
-		other_->component_insert (new Draggable2D ());
+		border_ = insert_rectangle (0, 0,
+									multi->width_get(), multi->height_get (),
+									false, Color::BLACK);
 
 	}
 
 	void
 	ExampleScene2D::update_ ()
 	{
-		if(keyboard_->is_down (keyboard_->SPACE))
-			app_->quit ();
+		//if(keyboard_->is_released (keyboard_->SPACE))
+		//	app_->quit ();
 
-		Draggable2D* drag = other_->component_get<Draggable2D> ();
-
-		if (cm_->are_colliding(player_, other_))
-			drag->cancel_drag ();
-
-
-
-		//player_->position_set (mouse_position ());
-		player_->rotate (-0.35 * pi_ * delta_);
-		other_->rotate (0.5 * pi_ * delta_);
-
-
+		obj_->position_set(mouse_position ());
+		border_->position_set (mouse_position ());
+		//obj_->rotate (-0.35 * pi_ * delta_);
+		//border_->rotate (-0.35 * pi_ * delta_);
 	}
 
 	void

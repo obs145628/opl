@@ -248,16 +248,20 @@ namespace opl
 	{
 		Object2D::draw (cv, dx, dy, sx, sy);
 		cv->draw_color_set (color_);
+
 		size_t n = vertices_.size ();
+		std::vector<r_type> coords (n);
 
 		for (size_t i = 0; i < n; i += 2)
 		{
-			r_type x1 = dx + vertices_[i] * sx;
-			r_type y1 = dy + vertices_[i + 1] * sy;
-			r_type x2 = dx + vertices_[(i + 2) % n] * sx;
-			r_type y2 = dy + vertices_[(i + 3) % n] * sy;
-			cv->draw_line (x1, y1, x2, y2);
+			coords[i] = dx + vertices_[i] * sx;
+			coords[i + 1] = dy + vertices_[i + 1] * sy;
 		}
+
+		if(filled_)
+			cv->fill_polygon (coords);
+		else
+			cv->draw_polygon (coords);
 	}
 
 	void

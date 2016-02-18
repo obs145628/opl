@@ -14,6 +14,7 @@
 # include "types.hh"
 # include "vector-2d.hh"
 # include "component-2d.hh"
+# include "scene-infos-2d.hh"
 
 namespace opl
 {
@@ -74,10 +75,10 @@ namespace opl
 		scale (Vector2D v);
 
 		virtual void
-		will_update ();
+		will_update (const SceneInfos2D& infos);
 
 		virtual void
-		did_update ();
+		did_update (const SceneInfos2D& infos);
 
 
 
@@ -165,15 +166,6 @@ namespace opl
 		Object2D*
 		parent_get () const;
 
-		Object2D*
-		root_get () const;
-
-		Object2D*
-		mouse_get () const;
-
-		void
-		mouse_set (Object2D* mouse);
-
 		void
 		component_insert (Component2D* component);
 
@@ -185,6 +177,12 @@ namespace opl
 		void
 		component_remove ();
 
+		std::vector<Object2D*>
+		find_tag (const std::string& tag);
+
+		Object2D*
+		find_first_tag (const std::string& tag);
+
 
 
 	private:
@@ -195,8 +193,9 @@ namespace opl
 		std::vector<Object2D*> children_;
 		std::map<size_t, Component2D*> components_;
 		Object2D* parent_;
-		Object2D* root_;
-		Object2D* mouse_;
+
+		void
+		find_tag_insert_ (const std::string& tag, std::vector<Object2D*> objs);
 
 	};
 
